@@ -10,6 +10,7 @@ import routes from './routes';
 import { errorConverter, errorHandler } from './middleware/error';
 import { notFound } from './middleware/notFound';
 import { rateLimiter } from './middleware/rateLimit';
+import { requestLogger, errorLogger } from './middleware/logging';
 
 const app = express();
 
@@ -17,6 +18,9 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Request logging middleware
+app.use(requestLogger);
+
+// Pino HTTP logging for additional request details
 app.use(pinoHttp({
   logger,
   genReqId: (req) => req.id,
@@ -91,6 +95,7 @@ app.use('/', routes);
 app.use(notFound);
 
 // Error handling middleware
+app.use(errorLogger);
 app.use(errorConverter);
 app.use(errorHandler);
 

@@ -17,7 +17,7 @@ A production-ready Node.js 20 + TypeScript 5 server boilerplate with Express, Mo
 - **Process Management**: PM2 for production deployment and monitoring
 
 
-- **Logging**: Pino with request ID tracking
+- **Logging**: Comprehensive file-based logging with rotation, PM2 integration, and structured logging
 
 - **CI/CD**: GitHub Actions workflow
 - **Code Quality**: ESLint, Prettier, and Husky hooks
@@ -299,6 +299,15 @@ npm run pm2:restart  # Restart PM2 processes
 npm run pm2:reload   # Zero-downtime reload
 npm run pm2:logs     # View PM2 logs
 npm run pm2:monit    # Monitor PM2 processes
+npm run pm2:status   # Check PM2 status
+
+# Logging
+npm run logs:view    # View combined logs in real-time
+npm run logs:error   # View error logs in real-time
+npm run logs:access  # View access logs in real-time
+npm run logs:rotate  # Manually rotate log files
+npm run logs:clean   # Clean old log files (30+ days)
+npm run pm2:monit    # Monitor PM2 processes
 
 # Code Quality
 npm run lint         # Run ESLint
@@ -430,6 +439,113 @@ pm2 describe ecommerce-backend # Show configuration
 ```
 
 For detailed PM2 deployment guide, see [docs/PM2_DEPLOYMENT.md](docs/PM2_DEPLOYMENT.md).
+
+## 📊 Logging System
+
+The application includes a comprehensive logging system designed for both development and production environments.
+
+### Features
+
+- **File-based logging** with automatic rotation
+- **Environment-specific configuration** (development vs production)
+- **PM2 compatibility** for production deployments
+- **Structured logging** with JSON format
+- **Multiple log levels** and specialized loggers
+- **Request/response logging** with timing information
+- **Error tracking** with stack traces
+- **Security event logging**
+- **Performance monitoring**
+
+### Configuration
+
+#### Environment Variables
+
+```env
+# Logging Configuration
+LOG_LEVEL=info                    # Log level (fatal, error, warn, info, debug, trace)
+LOG_TO_FILE=false                 # Enable file-based logging
+LOG_DIR=./logs                    # Directory for log files
+LOG_MAX_SIZE=10485760            # Maximum log file size in bytes (10MB)
+LOG_MAX_FILES=5                  # Maximum number of backup files to keep
+LOG_ROTATE_INTERVAL=1d           # Log rotation interval
+```
+
+#### Development vs Production
+
+**Development:**
+- Pretty-printed console output
+- Debug-level logging
+- File logging disabled by default
+
+**Production:**
+- JSON-structured file logging
+- Info-level logging
+- Automatic log rotation
+- PM2 integration
+
+### Log Files
+
+The system creates the following log files in the `logs/` directory:
+
+- `combined.log` - All application logs
+- `error.log` - Error-level logs only
+- `access.log` - HTTP request/response logs
+- `application.log` - Application-specific logs
+- `pm2-combined.log` - PM2 process logs
+- `pm2-out.log` - PM2 stdout logs
+- `pm2-error.log` - PM2 stderr logs
+
+### Usage Examples
+
+```typescript
+import logger, { 
+  logRequest, 
+  logError, 
+  logDatabase, 
+  logSecurity, 
+  logPerformance 
+} from './utils/logger';
+
+// Basic logging
+logger.info('Application started');
+logger.error('An error occurred', { error: 'details' });
+
+// Specialized logging
+logDatabase('find', 'users', 150, true);
+logSecurity('failed_login', 'user@example.com', '192.168.1.1');
+logPerformance('database_query', 250, { collection: 'users' });
+```
+
+### Log Management
+
+```bash
+# View logs in real-time
+npm run logs:view      # Combined logs
+npm run logs:error     # Error logs only
+npm run logs:access    # Access logs only
+
+# Log maintenance
+npm run logs:rotate    # Manual log rotation
+npm run logs:clean     # Clean old log files
+
+# PM2 log management
+npm run pm2:logs       # View PM2 logs
+npm run pm2:monit      # Monitor processes
+```
+
+### Log Rotation
+
+The system includes automatic log rotation to prevent disk space issues:
+
+```bash
+# Manual rotation
+./scripts/log-rotation.sh
+
+# Cron job for daily rotation (recommended)
+0 2 * * * cd /path/to/project && ./scripts/log-rotation.sh
+```
+
+For detailed logging documentation, see [docs/LOGGING.md](docs/LOGGING.md).
 
 ### Production Checklist
 

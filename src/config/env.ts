@@ -15,6 +15,11 @@ const envSchema = z.object({
   
   // Logging
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  LOG_TO_FILE: z.string().transform(val => val === 'true').default('false'),
+  LOG_DIR: z.string().default('./logs'),
+  LOG_MAX_SIZE: z.string().transform(Number).pipe(z.number().positive()).default('10485760'), // 10MB
+  LOG_MAX_FILES: z.string().transform(Number).pipe(z.number().positive()).default('5'),
+  LOG_ROTATE_INTERVAL: z.string().default('1d'),
   
   // CORS
   CORS_ORIGIN: z.string().url().default('http://localhost:5173'),
@@ -67,6 +72,12 @@ if (env.NODE_ENV === 'development') {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
+}
+
+// Create logs directory if it doesn't exist
+const logDir = path.resolve(env.LOG_DIR);
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 export default env;

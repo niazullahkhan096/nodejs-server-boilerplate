@@ -14,10 +14,10 @@ module.exports = {
         PORT: 4000
       },
       env_file: '.env.production',
-      // Logging
-      log_file: './logs/combined.log',
-      out_file: './logs/out.log',
-      error_file: './logs/error.log',
+      // Logging - PM2 will handle its own logs, our app handles application logs
+      log_file: './logs/pm2-combined.log',
+      out_file: './logs/pm2-out.log',
+      error_file: './logs/pm2-error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       // Process management
       max_memory_restart: '1G',
@@ -36,7 +36,12 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: 4000,
-        LOG_LEVEL: 'warn',
+        LOG_LEVEL: 'info',
+        LOG_TO_FILE: 'true',
+        LOG_DIR: './logs',
+        LOG_MAX_SIZE: '10485760',
+        LOG_MAX_FILES: '5',
+        LOG_ROTATE_INTERVAL: '1d',
         CORS_ORIGIN: 'https://your-frontend-domain.com',
         COOKIE_SECURE: 'true',
         COOKIE_SAME_SITE: 'strict',
