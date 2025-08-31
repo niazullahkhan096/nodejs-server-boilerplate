@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
-import { sendSuccess } from '../utils/apiResponse';
+import { sendSuccess, sendError, getLanguageFromRequest } from '../utils/apiResponse';
 import { httpStatus } from '../utils/httpStatus';
 
 export class UserController {
@@ -65,6 +65,79 @@ export class UserController {
       const { id } = req.params;
       const permissions = await UserService.getUserPermissions(id);
       sendSuccess(res, { permissions }, 'User permissions retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Profile Image Methods
+  static async uploadProfileImage(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        const language = getLanguageFromRequest(req);
+        sendError(res, 'profile.image.upload.no_file', 400, null, language);
+        return;
+      }
+
+      if (!req.user) {
+        const language = getLanguageFromRequest(req);
+        sendError(res, 'unauthorized', 401, null, language);
+        return;
+      }
+
+      const result = await UserService.uploadProfileImage(req.file, req.user.id);
+      const language = getLanguageFromRequest(req);
+      sendSuccess(res, result, 'profile.image.upload.success', 201, language);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteProfileImage(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        const language = getLanguageFromRequest(req);
+        sendError(res, 'unauthorized', 401, null, language);
+        return;
+      }
+
+      const result = await UserService.deleteProfileImage(req.user.id);
+      const language = getLanguageFromRequest(req);
+      sendSuccess(res, result, 'profile.image.delete.success', 200, language);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getProfileImage(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        const language = getLanguageFromRequest(req);
+        sendError(res, 'unauthorized', 401, null, language);
+        return;
+      }
+
+      const result = await UserService.getProfileImage(req.user.id);
+      const language = getLanguageFromRequest(req);
+      sendSuccess(res, result, 'profile.image.get.success', 200, language);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getProfileImageByUserId(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        const language = getLanguageFromRequest(req);
+        sendError(res, 'profile.image.get.invalid_user_id', 400, null, language);
+        return;
+      }
+
+      const result = await UserService.getProfileImage(userId);
+      const language = getLanguageFromRequest(req);
+      sendSuccess(res, result, 'profile.image.get.success', 200, language);
     } catch (error) {
       next(error);
     }

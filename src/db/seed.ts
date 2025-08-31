@@ -54,6 +54,11 @@ const seedDatabase = async (): Promise<void> => {
       { name: 'file.upload', description: 'Upload files' },
       { name: 'file.read', description: 'Read/download files' },
       { name: 'file.delete', description: 'Delete files' },
+      
+      // Profile image permissions
+      { name: 'profile.image.upload', description: 'Upload profile image' },
+      { name: 'profile.image.read', description: 'Read profile image' },
+      { name: 'profile.image.delete', description: 'Delete profile image' },
     ];
 
     const createdPermissions = await Permission.insertMany(permissions);
@@ -65,7 +70,7 @@ const seedDatabase = async (): Promise<void> => {
       .filter(p => !p.name.includes('permission.') && !p.name.includes('role.delete'))
       .map(p => p._id);
     const userPermissions = createdPermissions
-      .filter(p => p.name.includes('file.') || p.name === 'user.read' || p.name === 'user.update')
+      .filter(p => p.name.includes('file.') || p.name.includes('profile.image.') || p.name === 'user.read' || p.name === 'user.update')
       .map(p => p._id);
 
     const roles = [

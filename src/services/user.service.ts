@@ -1,5 +1,6 @@
 import User from '../models/User';
 import Role from '../models/Role';
+import { ProfileImageService } from './profileImage.service';
 import { ApiError } from '../middleware/error';
 import { httpStatus } from '../utils/httpStatus';
 
@@ -47,13 +48,18 @@ export class UserService {
       roles: roleIds,
     });
 
-    await user.populate({
-      path: 'roles',
-      populate: {
-        path: 'permissions',
-        select: 'name',
+    await user.populate([
+      {
+        path: 'roles',
+        populate: {
+          path: 'permissions',
+          select: 'name',
+        },
       },
-    });
+      {
+        path: 'profileImage',
+      },
+    ]);
 
     return user.toJSON();
   }
@@ -71,13 +77,18 @@ export class UserService {
 
     const [users, total] = await Promise.all([
       User.find(query)
-        .populate({
-          path: 'roles',
-          populate: {
-            path: 'permissions',
-            select: 'name',
+        .populate([
+          {
+            path: 'roles',
+            populate: {
+              path: 'permissions',
+              select: 'name',
+            },
           },
-        })
+          {
+            path: 'profileImage',
+          },
+        ])
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 }),
@@ -93,13 +104,18 @@ export class UserService {
   }
 
   static async getUserById(userId: string): Promise<any> {
-    const user = await User.findById(userId).populate({
-      path: 'roles',
-      populate: {
-        path: 'permissions',
-        select: 'name',
+    const user = await User.findById(userId).populate([
+      {
+        path: 'roles',
+        populate: {
+          path: 'permissions',
+          select: 'name',
+        },
       },
-    });
+      {
+        path: 'profileImage',
+      },
+    ]);
 
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
@@ -135,13 +151,18 @@ export class UserService {
       userId,
       data,
       { new: true, runValidators: true }
-    ).populate({
-      path: 'roles',
-      populate: {
-        path: 'permissions',
-        select: 'name',
+    ).populate([
+      {
+        path: 'roles',
+        populate: {
+          path: 'permissions',
+          select: 'name',
+        },
       },
-    });
+      {
+        path: 'profileImage',
+      },
+    ]);
 
     return updatedUser!.toJSON();
   }
@@ -156,13 +177,18 @@ export class UserService {
   }
 
   static async getUserPermissions(userId: string): Promise<string[]> {
-    const user = await User.findById(userId).populate({
-      path: 'roles',
-      populate: {
-        path: 'permissions',
-        select: 'name',
+    const user = await User.findById(userId).populate([
+      {
+        path: 'roles',
+        populate: {
+          path: 'permissions',
+          select: 'name',
+        },
       },
-    });
+      {
+        path: 'profileImage',
+      },
+    ]);
 
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
@@ -171,5 +197,20 @@ export class UserService {
     return user.roles.flatMap((role: any) => 
       role.permissions.map((perm: any) => perm.name)
     );
+  }
+
+  // Profile Image Methods
+  private static profileImageService = new ProfileImageService();
+
+  static async uploadProfileImage(file: any, userId: string): Promise<any> {
+    return this.profileImageService.uploadProfileImage(file, userId);
+  }
+
+  static async deleteProfileImage(userId: string): Promise<any> {
+    return this.profileImageService.deleteProfileImage(userId);
+  }
+
+  static async getProfileImage(userId: string): Promise<any> {
+    return this.profileImageService.getProfileImage(userId);
   }
 }

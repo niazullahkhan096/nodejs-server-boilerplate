@@ -6,6 +6,7 @@ export interface IFileObject extends Document {
   mimeType: string;
   size: number;
   owner: mongoose.Types.ObjectId;
+  category?: string; // Optional category for file organization
   createdAt: Date;
 }
 
@@ -35,6 +36,11 @@ const fileObjectSchema = new Schema<IFileObject>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+    },
+    category: {
+      type: String,
+      enum: ['profile-image', 'document', 'media', 'other'],
+      default: 'other',
     },
   },
   {

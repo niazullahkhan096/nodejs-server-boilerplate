@@ -40,3 +40,10 @@ export const getUsersSchema = z.object({
     isActive: commonSchemas.booleanString,
   }),
 });
+
+// Profile image validation schemas
+export const getProfileImageByUserIdSchema = z.object({
+  params: z.object({
+    userId: commonSchemas.objectId,
+  }),
+});

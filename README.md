@@ -11,7 +11,7 @@ A production-ready Node.js 20 + TypeScript 5 server boilerplate with Express, Mo
 - **Authorization**: Role-Based Access Control (RBAC) with permissions
 - **Validation**: Organized Zod schemas following Single Responsibility Principle
 - **Security**: Helmet, CORS, rate limiting, and more
-- **File Uploads**: Local disk storage support
+- **File Uploads**: Local disk storage support with profile image upload and reusable upload middleware
 - **Internationalization**: Multi-language response messages
 - **Data Export**: CSV export functionality with date range filtering
 - **Process Management**: PM2 for production deployment and monitoring
@@ -277,6 +277,51 @@ Configure the upload directory in your environment variables:
 UPLOAD_DIR=./uploads
 MAX_FILE_SIZE=10485760
 ```
+
+## 📸 Profile Image Upload API
+
+The application includes a comprehensive profile image upload system with automatic validation and cleanup.
+
+### Features
+
+- **Multiple image formats**: JPEG, PNG, GIF, WebP
+- **File size validation**: 2MB maximum
+- **Automatic cleanup**: Old images are deleted when uploading new ones
+- **RBAC integration**: Proper permission-based access control
+- **Structured logging**: All operations are logged with context
+
+### API Endpoints
+
+| Method | Endpoint | Description | Permissions |
+|--------|----------|-------------|-------------|
+| POST | `/api/v1/users/profile-image/upload` | Upload profile image | `profile.image.upload` |
+| DELETE | `/api/v1/users/profile-image/delete` | Delete profile image | `profile.image.delete` |
+| GET | `/api/v1/users/profile-image/me` | Get current user's profile image | `profile.image.read` |
+| GET | `/api/v1/users/:userId/profile-image` | Get profile image by user ID | `profile.image.read` |
+
+### Usage Example
+
+```bash
+# Upload profile image
+curl -X POST http://localhost:4000/api/v1/users/profile-image/upload \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "profileImage=@/path/to/image.jpg"
+
+# Get current user's profile image
+curl -X GET http://localhost:4000/api/v1/users/profile-image/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+For detailed API documentation, see [docs/PROFILE_IMAGE_API.md](docs/PROFILE_IMAGE_API.md).
+
+## Documentation
+
+- [Profile Image Upload API](docs/PROFILE_IMAGE_API.md)
+- [Upload Middleware](docs/UPLOAD_MIDDLEWARE.md)
+- [File Service Architecture](docs/FILE_SERVICE_ARCHITECTURE.md)
+- [Logging System](docs/LOGGING.md)
+- [PM2 Deployment](docs/PM2_DEPLOYMENT.md)
+- [Validation Schemas](docs/VALIDATION_SCHEMAS.md)
 
 
 

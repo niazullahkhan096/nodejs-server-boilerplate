@@ -7,6 +7,7 @@ export interface IUser extends Document {
   name: string;
   roles: mongoose.Types.ObjectId[];
   isActive: boolean;
+  profileImage?: string; // Reference to FileObject
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -41,6 +42,10 @@ const userSchema = new Schema<IUser>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    profileImage: {
+      type: Schema.Types.ObjectId,
+      ref: 'FileObject',
     },
   },
   {
